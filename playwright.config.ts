@@ -19,7 +19,7 @@ export default defineConfig({
     navigationTimeout: 60_000,
     trace: "retain-on-failure",
     launchOptions: {
-      ...(executablePath ? { executablePath } : { channel: "chrome" }),
+      ...(executablePath ? { executablePath } : process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {}),
       args: [
         "--enable-unsafe-webgpu",
         "--enable-features=Vulkan",

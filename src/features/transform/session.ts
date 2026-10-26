@@ -456,8 +456,8 @@ export class TransformSession {
 
   // ----- Pointer -----
   pointerDown(p: CanvasPointer) {
-    const target = p.event.target as Element;
-    const attr = target.closest?.('[data-ts-handle],[data-transform-handle]');
+    const target = p.event?.target as Element | undefined;
+    const attr = target?.closest?.('[data-ts-handle],[data-transform-handle]');
     const name = attr?.getAttribute('data-ts-handle') ?? attr?.getAttribute('data-transform-handle') ?? '';
     const at = { x: p.x, y: p.y };
     const state = this.snapshot();

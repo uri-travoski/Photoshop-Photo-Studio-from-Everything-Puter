@@ -6,7 +6,7 @@ import type { Editor } from '../../editor';
 import { commands, registerCommand } from '../../app/registry';
 import { localStore } from '../../persistence/local-store';
 
-export type RecentSource = { kind: 'puter'; path: string } | { kind: 'local'; blob: Blob } | { kind: 'stored'; key: string };
+export type RecentSource = { kind: 'puter'; path: string } | { kind: 'local'; blob: Blob; handle?: FileSystemFileHandle } | { kind: 'stored'; key: string };
 export type RecentEntry = { name: string; source: RecentSource; time?: number };
 type Entry = RecentEntry;
 const KEY = 'photo-studio-recent';

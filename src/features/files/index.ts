@@ -66,6 +66,7 @@ export function installFiles(e: Editor) {
   lcmd('file.print', 'Print…', info, (m) => m.printImage(e), { shortcut: 'Mod+P', enabled: hasDoc });
   installAutomate(e);
   setRecentOpener(async (e, entry) => (await saving()).openRecentEntry(e, entry));
+  void saving().then((m) => m.installPuterLaunch(e));
   syncRecentCommands(e);
   installStartScreen(e);
   bindTabDrop(e);

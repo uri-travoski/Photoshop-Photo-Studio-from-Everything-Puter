@@ -29,6 +29,7 @@ export class DocumentSession {
   lastSelection?: TileGrid | null;
   // File name/handle for Save; undefined until saved or opened from a file.
   fileName?: string;
+  fileHandle?: FileSystemFileHandle;
   // Features can take over Save and closing (embedded object contents save
   // into their parent document). `closeHandler` resolves false to stay open.
   saveHandler?: () => Promise<void>;

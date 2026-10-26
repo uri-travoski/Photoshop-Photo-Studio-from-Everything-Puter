@@ -37,9 +37,34 @@ export const copiedImage = (): RGBA8 | undefined => clipboard?.image;
 
 export function installCore(e: Editor) {
   // ----- File -----
-  cmd('file.open', 'Open…', () => {
+  cmd('file.open', 'Open…', async () => {
     // Load the decoders while the file picker is open.
     import('./files/open').catch(() => {});
+    if (typeof window !== 'undefined' && 'showOpenFilePicker' in window) {
+      try {
+        const handles = await (window as any).showOpenFilePicker({
+          multiple: true,
+          types: [
+            {
+              description: 'Images and Projects',
+              accept: {
+                'image/*': ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.bmp', '.tiff', '.tif', '.svg', '.ico'],
+                'application/x-photo-editor': ['.photo'],
+                'image/vnd.adobe.photoshop': ['.psd', '.psb'],
+              },
+            },
+          ],
+        });
+        const { openFile } = await import('./files/open');
+        for (const handle of handles) {
+          const file = await handle.getFile();
+          await openFile(e, file, file.name, false, { source: { kind: 'local', blob: file, handle } });
+        }
+        return;
+      } catch (err: any) {
+        if (err?.name === 'AbortError') return;
+      }
+    }
     const input = e.el<HTMLInputElement>('#file-input');
     input.dataset.place = '';
     input.click();
@@ -471,8 +496,10 @@ async function layerVia(e: Editor, cut: boolean) {
   }
   const target = await pixelTarget(e, { allowMask: false, create: false });
   if (!target || target.kind !== 'pixels') return;
-  const sel = selectionGrid(e.doc, e.assets.tiles)!;
-  const b = selectionBounds(e.doc, sel)!;
+  const sel = selectionGrid(e.doc, e.assets.tiles);
+  if (!sel) return;
+  const b = selectionBounds(e.doc, sel);
+  if (!b) return;
   const src = readRGBA(e.assets.tiles, target.grid, b);
   const cover = readMask(e.assets.tiles, sel, b).data;
   const piece = new Uint8ClampedArray(src.data);
@@ -588,8 +615,10 @@ async function clearSelection(e: Editor, label = 'Clear') {
   }
   const target = await pixelTarget(e, { create: false });
   if (!target) return;
-  const sel = selectionGrid(e.doc, e.assets.tiles)!;
-  const b = selectionBounds(e.doc, sel)!;
+  const sel = selectionGrid(e.doc, e.assets.tiles);
+  if (!sel) return;
+  const b = selectionBounds(e.doc, sel);
+  if (!b) return;
   const cover = readMask(e.assets.tiles, sel, b).data;
   if (target.kind === 'pixels') {
     const src = readRGBA(e.assets.tiles, target.grid, b);

@@ -256,7 +256,8 @@ export async function openFile(e: Editor, blob: Blob, name: string, place = fals
     s.history.reset(loaded.document);
     s.hasDocument = true;
     s.storage.reset();
-    if (source.kind === 'puter' && lower.endsWith('.photo')) s.storage.path = source.path;
+    if (source.kind === 'puter') s.storage.path = source.path;
+    if (source.kind === 'local' && source.handle) s.fileHandle = source.handle;
     s.saved = s.doc;
     s.fileName = name;
     e.selected = s.doc.layers.at(-1)?.id ?? '';
@@ -304,6 +305,8 @@ export async function openFile(e: Editor, blob: Blob, name: string, place = fals
   s.history.reset(doc);
   s.hasDocument = true;
   s.storage.reset();
+  if (source.kind === 'puter') s.storage.path = source.path;
+  if (source.kind === 'local' && source.handle) s.fileHandle = source.handle;
   s.saved = s.doc;
   s.fileName = name;
   e.selected = doc.layers.at(decoded.animation ? 0 : -1)!.id;

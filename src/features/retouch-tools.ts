@@ -292,8 +292,8 @@ function colorDistance(a: Uint8ClampedArray | number[], b: Uint8ClampedArray | n
 function sampledColor(e: Editor, target: PixelTarget & { kind: 'pixels' }) {
   const sample = gridSampler(e, target.grid);
   const t = new Uint8ClampedArray(4);
-  const p = e.pointerInfo!;
-  sample(p.x, p.y, t);
+  const p = e.pointerInfo;
+  if (p) sample(p.x, p.y, t);
   return { sample, ref: [t[0], t[1], t[2]] };
 }
 function backgroundEraserTarget(e: Editor, target: PixelTarget): PaintTarget | undefined {

@@ -26,7 +26,7 @@ const clip = join(tmpdir(), `photo-studio-camera-${process.pid}.y4m`);
 writeFileSync(clip, y4m());
 test.use({
   launchOptions: {
-    ...(process.env.PW_CHROME_PATH ? { executablePath: process.env.PW_CHROME_PATH } : { channel: 'chrome' }),
+    ...(process.env.PW_CHROME_PATH ? { executablePath: process.env.PW_CHROME_PATH } : process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {}),
     args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-angle=swiftshader', '--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', `--use-file-for-fake-video-capture=${clip}`],
   },
 });

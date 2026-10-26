@@ -125,7 +125,7 @@ export function installTransform(e: Editor) {
     hover: (e, p) => {
       const s = currentSession();
       s?.hover(p);
-      const handle = (p.event.target as Element).closest?.('[data-ts-handle]');
+      const handle = (p.event?.target as Element | undefined)?.closest?.('[data-ts-handle]');
       e.el('#viewport').style.cursor = !s ? '' : handle ? 'pointer' : s.cursor(p);
     },
     keyDown: (e, ev) => {

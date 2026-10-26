@@ -185,7 +185,22 @@ export async function openRestore(e: Editor, opts: RestoreDialogOptions = {}): P
   aiClient.load(src.image);
   const clients = [preview, full, aiClient];
 
-  const say = (t: string) => (statusEl.textContent = t);
+  let notice: string | null = null;
+  let noticeTimer = 0;
+  const say = (t: string) => {
+    notice = null;
+    clearTimeout(noticeTimer);
+    statusEl.textContent = t;
+  };
+  const sayNotice = (t: string, ms = 4000) => {
+    notice = t;
+    statusEl.textContent = t;
+    clearTimeout(noticeTimer);
+    noticeTimer = window.setTimeout(() => {
+      notice = null;
+      statusEl.textContent = summary();
+    }, ms);
+  };
   const busy = (label: string | null, f = 0) => {
     busyEl.hidden = !label;
     if (label) {
@@ -669,7 +684,7 @@ ${def.overlay ? `<label class="pr-row pr-check"><input type="checkbox" class="pr
     }
     if (my !== gen) return;
     busy(null);
-    say(summary());
+    if (!notice) say(summary());
     maybeFull();
   }
   // Zoomed in past the preview's resolution: render full size once settled.
@@ -825,7 +840,7 @@ ${def.overlay ? `<label class="pr-row pr-check"><input type="checkbox" class="pr
       renderControls();
       renderOutput();
       changed();
-      say(`Preset “${p.name}” loaded.${stopped ? ' The running AI request was stopped.' : ''}`);
+      sayNotice(`Preset “${p.name}” loaded.${stopped ? ' The running AI request was stopped.' : ''}`);
     } else if (del !== undefined) {
       const p = presets[Number(del)];
       if (p) deletePreset(p.name);
@@ -839,7 +854,7 @@ ${def.overlay ? `<label class="pr-row pr-check"><input type="checkbox" class="pr
       }
       savePreset(name, params);
       renderPresets();
-      say(`Preset “${name}” saved.`);
+      sayNotice(`Preset “${name}” saved.`);
     } else if (act === 'export') {
       const blob = new Blob([exportPresets(presets)], { type: 'application/json' });
       const a = document.createElement('a');
@@ -857,7 +872,7 @@ ${def.overlay ? `<label class="pr-row pr-check"><input type="checkbox" class="pr
         try {
           const { added } = importPresets(await f.text());
           renderPresets();
-          say(`${added} preset${added === 1 ? '' : 's'} imported.`);
+          sayNotice(`${added} preset${added === 1 ? '' : 's'} imported.`);
         } catch (error) {
           say(error instanceof Error ? error.message : String(error));
         }

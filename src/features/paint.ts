@@ -304,6 +304,7 @@ const crossAt = (x: number, y: number, arm: number, gap: number) =>
  * crosshair, the tip outline where the brush is at least half strength
  * ("normal") or at its full size, optionally with a center crosshair. */
 export function brushCursorMarkup(e: Editor, x: number, y: number, s: { size: number; roundness: number; angle: number }, hardness: number) {
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return '';
   const mode = e.preferences.paintCursor;
   if (mode === 'standard') return '';
   const full = Math.max(1, (s.size * e.zoom) / 2);

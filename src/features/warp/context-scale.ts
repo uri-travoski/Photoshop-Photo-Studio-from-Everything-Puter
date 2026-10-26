@@ -193,7 +193,7 @@ class ContextScaleSession extends WarpSession<Snap> {
 
   // ----- Pointer -----
   pointerDown(p: CanvasPointer) {
-    const name = (p.event.target as Element).closest?.('[data-cs-handle]')?.getAttribute('data-cs-handle') as Handle | null;
+    const name = (p.event?.target as Element | undefined)?.closest?.('[data-cs-handle]')?.getAttribute('data-cs-handle') as Handle | null;
     const at = { x: p.x, y: p.y };
     const f = this.frame;
     const inside = at.x >= f.x && at.x <= f.x + f.width && at.y >= f.y && at.y <= f.y + f.height;
@@ -224,7 +224,7 @@ class ContextScaleSession extends WarpSession<Snap> {
     this.refresh(true);
   }
   hover(p: CanvasPointer) {
-    if ((p.event.target as Element).closest?.('[data-cs-handle]')) return '';
+    if ((p.event?.target as Element | undefined)?.closest?.('[data-cs-handle]')) return '';
     const f = this.frame;
     return p.x >= f.x && p.x <= f.x + f.width && p.y >= f.y && p.y <= f.y + f.height ? 'move' : 'default';
   }

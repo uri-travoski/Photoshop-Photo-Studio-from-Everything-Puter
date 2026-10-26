@@ -208,7 +208,7 @@ class PinWarpSession extends WarpSession<Snap> {
       this.e.overlay();
     }
     const local = this.toLocal(p);
-    const rot = (p.event.target as Element).closest?.('[data-pin-rotate]')?.getAttribute('data-pin-rotate');
+    const rot = (p.event?.target as Element | undefined)?.closest?.('[data-pin-rotate]')?.getAttribute('data-pin-rotate');
     if (rot != null) {
       const i = Number(rot),
         pin = this.pins[i];
@@ -290,8 +290,8 @@ class PinWarpSession extends WarpSession<Snap> {
     this.e.options();
   }
   hover(p: CanvasPointer) {
-    const t = p.event.target as Element;
-    if (t.closest?.('[data-pin-rotate]')) return 'grab';
+    const t = p.event?.target as Element | undefined;
+    if (t?.closest?.('[data-pin-rotate]')) return 'grab';
     if (!this.solver || !this.mesh) return 'default';
     const local = this.toLocal(p);
     if (this.pinUnder(local) >= 0) return p.alt ? 'not-allowed' : 'move';

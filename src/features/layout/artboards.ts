@@ -132,8 +132,8 @@ function snapThreshold(e: Editor) {
   return 6 / e.zoom;
 }
 function pointerDown(e: Editor, p: CanvasPointer) {
-  const target = p.event.target as Element;
-  const handle = target.closest?.('[data-artboard-handle]')?.getAttribute('data-artboard-handle') as ResizeHandle | null;
+  const target = p.event?.target as Element | undefined;
+  const handle = target?.closest?.('[data-artboard-handle]')?.getAttribute('data-artboard-handle') as ResizeHandle | null;
   const sel = selectedArtboard(e);
   if (handle && sel) {
     if (layerLock(e.doc.layers, sel.id, 'position')) return void e.message('Unlock the artboard to resize it.');

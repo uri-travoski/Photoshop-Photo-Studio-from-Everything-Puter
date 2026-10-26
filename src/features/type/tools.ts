@@ -70,13 +70,13 @@ function handleAt(e: Editor, p: CanvasPointer): string | undefined {
 }
 
 async function pointerDown(e: Editor, p: CanvasPointer, vertical: boolean, mask: boolean) {
-  // Event time, not handling time: a busy main thread must not split a double-click.
-  const now = p.event.timeStamp;
-  const near = Math.hypot(p.clientX - clicks.x, p.clientY - clicks.y) < 5;
+  const now = p.event?.timeStamp ?? performance.now();
+  const cx = p.clientX ?? p.x, cy = p.clientY ?? p.y;
+  const near = Math.hypot(cx - clicks.x, cy - clicks.y) < 5;
   clicks.count = now - clicks.time < 450 && near ? clicks.count + 1 : 1;
   clicks.time = now;
-  clicks.x = p.clientX;
-  clicks.y = p.clientY;
+  clicks.x = cx;
+  clicks.y = cy;
   gesture = undefined;
   if (session) {
     const h = handleAt(e, p);

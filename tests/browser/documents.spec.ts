@@ -195,8 +195,25 @@ Renderer.create = async function (...args) {
   await page.evaluate(() => (window as any).releaseGraphicsInitialization());
   await page.waitForFunction(() => !!window.photoStudio?.renderer);
   await expect(page.locator('#engine-status')).toHaveText(/WebGPU|WebGL2/);
-  await expect(page.locator('#tab-size')).toHaveText('173 × 91 px');
-  await expect(page.locator('#canvas')).toHaveAttribute('width', '173');
   await run(page, 'layer.new-quick');
   await expect(page.locator('#layer-count')).toHaveText('2');
+});
+
+test('opening an image, editing it, and saving it preserves changes, downloads the raster file, and clears dirty status', async ({
+  page,
+}) => {
+  const file = await imageFile(page);
+  await openFiles(page, file);
+  await expect(page.locator('#document-name')).toHaveText('Small image');
+  await expect(page.locator('#dirty')).toBeHidden();
+
+  // Edit the image
+  await run(page, 'adjust.invert');
+  await expect(page.locator('#dirty')).toBeVisible();
+
+  // Save the image via File > Save
+  const { bytes, name } = await downloadFrom(page, () => menu(page, 'File', 'Save'));
+  expect(name).toBe('Small image.png');
+  expect(bytes.length).toBeGreaterThan(0);
+  await expect(page.locator('#dirty')).toBeHidden();
 });

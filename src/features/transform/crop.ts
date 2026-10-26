@@ -367,7 +367,7 @@ export const cropTool: Tool = {
       drag = { kind: 'straighten', start: at, end: at };
       return;
     }
-    const handle = (p.event.target as Element).closest?.('[data-crop-handle]')?.getAttribute('data-crop-handle');
+    const handle = (p.event?.target as Element | undefined)?.closest?.('[data-crop-handle]')?.getAttribute('data-crop-handle');
     const l = toLocal(box, at);
     const inside = Math.abs(l.x) <= box.w / 2 && Math.abs(l.y) <= box.h / 2;
     if (handle) drag = { kind: 'resize', handle, start: at, box: { ...box } };
@@ -492,7 +492,7 @@ export const perspectiveCropTool: Tool = {
   },
   pointerDown: (e, p: CanvasPointer) => {
     const at = { x: p.x, y: p.y };
-    const handle = (p.event.target as Element).closest?.('[data-pc-handle]')?.getAttribute('data-pc-handle');
+    const handle = (p.event?.target as Element | undefined)?.closest?.('[data-pc-handle]')?.getAttribute('data-pc-handle');
     if (handle !== null && handle !== undefined) {
       quadDrag = { index: Number(handle), start: at, points: quad.map((q) => ({ ...q })) };
       return;

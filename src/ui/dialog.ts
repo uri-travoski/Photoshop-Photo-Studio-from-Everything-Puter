@@ -18,13 +18,23 @@ function field(f: Field) {
     return `<input type="hidden" name="${f.name}" value="no"><input name="${f.name}" type="checkbox" value="yes" ${f.value === 'yes' || f.value === 1 ? 'checked' : ''}>`;
   return `<input name="${f.name}" type="${f.type ?? 'text'}" value="${escapeXML(String(f.value))}" ${f.min !== undefined ? `min="${f.min}"` : ''} ${f.max !== undefined ? `max="${f.max}"` : ''} ${f.step !== undefined ? `step="${f.step}"` : f.type === 'number' ? 'step="any"' : ''} ${f.type === 'color' ? '' : 'required'}>`;
 }
+function getDialog(): HTMLDialogElement {
+  let dialog = document.querySelector<HTMLDialogElement>('#dialog');
+  if (!dialog) {
+    dialog = document.createElement('dialog');
+    dialog.id = 'dialog';
+    document.body.appendChild(dialog);
+  }
+  return dialog;
+}
+
 export function formDialog(
   title: string,
   fields: Field[],
   submit = 'Apply',
   message = '',
 ): Promise<Record<string, string> | null> {
-  const dialog = document.querySelector<HTMLDialogElement>('#dialog')!;
+  const dialog = getDialog();
   return new Promise((resolve) => {
     // A blank line in the message starts a new paragraph.
     const paragraphs = message ? message.split(/\n\s*\n/).map((m) => `<p>${escapeXML(m.trim())}</p>`).join('') : '';
@@ -47,7 +57,7 @@ export function formDialog(
   });
 }
 export function information(title: string, html: string) {
-  const d = document.querySelector<HTMLDialogElement>('#dialog')!;
+  const d = getDialog();
   d.innerHTML = `<form method="dialog"><h2>${escapeXML(title)}</h2>${html}<div class="dialog-actions"><button class="primary">Done</button></div></form>`;
   d.showModal();
 }
