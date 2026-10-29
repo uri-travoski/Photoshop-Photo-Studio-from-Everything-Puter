@@ -95,14 +95,41 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Release Packages (on version tag)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Extract project version
+        id: pkg_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Release Linux Packages to GitHub Releases
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', steps.pkg_version.outputs.version) }}
+          name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('Photo Studio v{0}', steps.pkg_version.outputs.version) }}
+          body: |
+            ## Photo Studio Desktop for Linux
+
+            Automated Linux desktop release built from commit `${{ github.sha }}`.
+
+            ### Included Packages
+            - **Debian / Ubuntu**: `.deb`
+            - **Fedora / RHEL / CentOS / openSUSE**: `.rpm`
+            - **Universal Linux (Portable)**: `.AppImage`
+            - **Sandboxed Flatpak**: `.flatpak`
+
+            ### Quick Install
+            - **AppImage**: `chmod +x Photo-Studio-*.AppImage && ./Photo-Studio-*.AppImage`
+            - **Debian / Ubuntu**: `sudo dpkg -i *photo-studio*.deb || sudo apt-get install -f -y`
+            - **Fedora / RHEL**: `sudo rpm -Uvh *photo-studio*.rpm`
+            - **Flatpak**: `flatpak install --user Photo\ Studio-*.flatpak`
           files: |
             release/*.deb
             release/*.rpm
             release/*.AppImage
             release/*.flatpak
+          draft: false
+          prerelease: false
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
