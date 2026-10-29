@@ -1,0 +1,108 @@
+name: Build Linux Packages
+
+on:
+  push:
+    branches: [ "**" ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Linux Packages (deb, rpm, AppImage, flatpak)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Linux packaging tools and dependencies
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          sudo apt-get update
+          sudo apt-get install -y rpm flatpak flatpak-builder elfutils dbus-daemon dbus-x11 libfuse2 || sudo apt-get install -y libfuse2t64 || true
+          sudo service dbus start || sudo /etc/init.d/dbus start || true
+          eval $(dbus-launch --sh-syntax)
+          echo "DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS" >> $GITHUB_ENV
+
+      - name: Setup Flatpak Flathub remote and Electron runtime
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.electronjs.Electron2.BaseApp//23.08
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build web application bundle
+        run: npm run build
+
+      - name: Build Linux packages (deb, rpm, AppImage, flatpak)
+        run: npx electron-builder --linux deb rpm AppImage flatpak --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List generated packages
+        run: |
+          echo "Package directory contents:"
+          ls -lh release/
+
+      - name: Upload Debian Package (.deb)
+        uses: actions/upload-artifact@v4
+        with:
+          name: photo-studio-deb
+          path: release/*.deb
+          if-no-files-found: error
+
+      - name: Upload RPM Package (.rpm)
+        uses: actions/upload-artifact@v4
+        with:
+          name: photo-studio-rpm
+          path: release/*.rpm
+          if-no-files-found: error
+
+      - name: Upload AppImage Package (.AppImage)
+        uses: actions/upload-artifact@v4
+        with:
+          name: photo-studio-appimage
+          path: release/*.AppImage
+          if-no-files-found: error
+
+      - name: Upload Flatpak Package (.flatpak)
+        uses: actions/upload-artifact@v4
+        with:
+          name: photo-studio-flatpak
+          path: release/*.flatpak
+          if-no-files-found: error
+
+      - name: Upload All Linux Packages Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: photo-studio-all-linux-packages
+          path: |
+            release/*.deb
+            release/*.rpm
+            release/*.AppImage
+            release/*.flatpak
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Release Packages (on version tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.deb
+            release/*.rpm
+            release/*.AppImage
+            release/*.flatpak
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

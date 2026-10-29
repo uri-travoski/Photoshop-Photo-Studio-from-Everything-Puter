@@ -13,7 +13,13 @@ linux:
     - target: deb
       arch:
         - x64
+    - target: rpm
+      arch:
+        - x64
     - target: AppImage
+      arch:
+        - x64
+    - target: flatpak
       arch:
         - x64
   category: Graphics
@@ -23,5 +29,11 @@ linux:
   maintainer: Puter Team <support@puter.com>
 deb:
   packageName: photo-studio
+rpm:
+  packageName: photo-studio
 appImage:
   artifactName: Photo-Studio-${version}.AppImage
+flatpak:
+  branch: stable
+  runtimeVersion: "23.08"
+  baseVersion: "23.08"

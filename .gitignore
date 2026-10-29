@@ -3,5 +3,5 @@ dist/
 test-results/
 playwright-report/
 audit-results.json
-*.png
+/*.png
 release/

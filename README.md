@@ -123,6 +123,27 @@ rustup toolchain install 1.85.1 --profile minimal --target wasm32-unknown-unknow
 npm run wasm:build
 ```
 
+## Desktop Application & Packaging
+
+Photo Studio can be built and run as a standalone native desktop application for Linux using Electron and electron-builder:
+
+```sh
+# Build all Linux packages (deb, rpm, AppImage, flatpak)
+npm run dist:all
+
+# Or build individual packages:
+npm run dist:deb       # Debian / Ubuntu (.deb)
+npm run dist:rpm       # Fedora / Red Hat / openSUSE (.rpm)
+npm run dist:appimage  # Universal Linux (.AppImage)
+npm run dist:flatpak   # Flatpak package (.flatpak)
+```
+
+Generated packages are placed in the `release/` directory.
+
+### Automated GitHub Actions CI/CD
+
+On every push to the repository, GitHub Actions automatically builds and publishes all 4 Linux package formats (`.deb`, `.rpm`, `.AppImage`, `.flatpak`) as downloadable workflow artifacts.
+
 ## Legal notes
 
 - Photo Studio's code, icons, cursors, presets (brushes, gradients, patterns, styles, shapes, color looks) and branding are original or come from permissively licensed projects listed in [docs/third-party.md](docs/third-party.md) and `public/THIRD_PARTY_NOTICES.txt`.
@@ -142,4 +163,4 @@ npm run wasm:build
 
 ## License
 
-This repository, including all its contents, sub-projects, modules, and components, is licensed under [MIT](../../LICENSE) unless explicitly stated otherwise. Third-party libraries included in this repository may be subject to their own licenses.
+This repository, including all its contents, sub-projects, modules, and components, is licensed under [MIT](LICENSE) unless explicitly stated otherwise. Third-party libraries included in this repository may be subject to their own licenses.
